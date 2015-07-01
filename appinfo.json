@@ -1,0 +1,33 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "dominic.wakeling@btinternet.co",
+    "longName": "6105",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/face2.png",
+                "name": "WATCH_DIAL",
+                "type": "png"
+            },
+            {
+                "file": "images/second_hand_2.png",
+                "name": "SECOND_HAND_PADDLE",
+                "type": "png"
+            }
+        ]
+    },
+    "sdkVersion": "3",
+    "shortName": "6105",
+    "targetPlatforms": [
+        "basalt"
+    ],
+    "uuid": "2325bbda-d15c-4438-a62b-ad061b020d89",
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": true
+    }
+}
