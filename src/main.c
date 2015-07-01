@@ -31,6 +31,10 @@
 #define SECS_IC_X 4
 #define SECS_IC_Y 56
 	
+/* size of dial text bitmap */
+#define DIAL_X 46
+#define DIAL_Y 67
+	
 /*****************************************************/
 /*********** DEFINE VARIABLES & 'OBJECTS' ************/	
 /*****************************************************/
@@ -39,13 +43,13 @@
 static Window *main_window;
 Layer *hours_layer, *minutes_layer, *seconds_layer, *circle_layer;
 RotBitmapLayer *paddle_layer;
-BitmapLayer *dial_layer;
+BitmapLayer *dial_layer, *dial_text_layer;
 TextLayer *temp_text_layer;
 
 /* paths & bitmaps */
 GPath *s_hand_path, *m_hand_path, *h_hand_path;
 //GPath *m_lume_path;
-GBitmap *seconds_paddle, *watch_dial;
+GBitmap *seconds_paddle, *watch_dial, *dial_text;
 
 /* variables */
 char temp_buff[] = "00";
@@ -254,23 +258,29 @@ static void main_window_load(Window *w) {
 	layer_set_update_proc(seconds_layer, seconds_update_proc);
 	layer_set_update_proc(circle_layer, circle_update_proc);
 		
-	// init our gpaths & gbitmaps
+	// init our gpaths
 	s_hand_path = gpath_create(&s_hand_info);
 	m_hand_path = gpath_create(&m_hand_info);
 	h_hand_path = gpath_create(&h_hand_info);
 	//m_lume_path = gpath_create(&m_lume_info);
 	
+	// init our bitmaps
 	seconds_paddle = gbitmap_create_with_resource(RESOURCE_ID_SECOND_HAND_PADDLE);
 	watch_dial = gbitmap_create_with_resource(RESOURCE_ID_WATCH_DIAL);
+	dial_text = gbitmap_create_with_resource(RESOURCE_ID_DIAL_TEXT);
 	
 	// create rotbitmaplayer
 	paddle_layer = rot_bitmap_layer_create(seconds_paddle);
 	rot_bitmap_set_src_ic(paddle_layer, GPoint(SECS_IC_X,SECS_IC_Y));
 	rot_bitmap_set_compositing_mode(paddle_layer, GCompOpSet);
 	
-	// create bitmaplayer
+	// create background bitmaplayer
 	dial_layer = bitmap_layer_create(r);
 	bitmap_layer_set_bitmap(dial_layer, watch_dial);
+	
+	// create dial text bitmaplayer
+	dial_text_layer = bitmap_layer_create(GRect( (SCREEN_WIDTH - DIAL_X)/2, (SCREEN_HEIGHT - DIAL_Y)/2 + 2, DIAL_X, DIAL_Y ));
+	bitmap_layer_set_bitmap(dial_text_layer, dial_text);
 	
 	// create the text layer
 	temp_text_layer = text_layer_create(GRect(114,75,15,15));
@@ -282,6 +292,7 @@ static void main_window_load(Window *w) {
 	
 	// add layers to window
 	layer_add_child(w_layer, (Layer *)dial_layer);
+	layer_add_child(w_layer, (Layer *)dial_text_layer);
 	layer_add_child(w_layer, text_layer_get_layer(temp_text_layer));
 	layer_add_child(w_layer, hours_layer);
 	layer_add_child(w_layer, minutes_layer);
@@ -302,14 +313,16 @@ static void main_window_unload(Window *w) {
 	layer_destroy(circle_layer);
 	rot_bitmap_layer_destroy(paddle_layer);
 	bitmap_layer_destroy(dial_layer);
+	bitmap_layer_destroy(dial_text_layer);
 	
-	// destroy gpaths &
+	// destroy gpaths & gbitmaps
 	gpath_destroy(s_hand_path);
 	gpath_destroy(m_hand_path);
 	gpath_destroy(h_hand_path);
 	//gpath_destroy(m_lume_path);
 	gbitmap_destroy(seconds_paddle);
 	gbitmap_destroy(watch_dial);
+	gbitmap_destroy(dial_text);
 	
 	// temp text layer
 	text_layer_destroy(temp_text_layer);

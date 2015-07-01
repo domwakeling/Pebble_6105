@@ -9,6 +9,11 @@
     "resources": {
         "media": [
             {
+                "file": "images/dial_text.png",
+                "name": "DIAL_TEXT",
+                "type": "png"
+            },
+            {
                 "file": "images/face2.png",
                 "name": "WATCH_DIAL",
                 "type": "png"
