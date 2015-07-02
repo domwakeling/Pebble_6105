@@ -25,7 +25,6 @@
 /* hand colours */
 #define HANDS_STROKE_COLOUR GColorBlack
 #define HANDS_FILL_COLOUR GColorWhite
-//#define HANDS_LUME_COLOUR GColorMalachite
 	
 /* seconds paddle */
 #define SECS_IC_X 4
@@ -46,9 +45,9 @@ RotBitmapLayer *paddle_layer;
 BitmapLayer *dial_layer, *dial_text_layer;
 TextLayer *temp_text_layer;
 
-/* paths & bitmaps */
+/* paths, fonts & bitmaps */
+GFont eurostile_font;
 GPath *s_hand_path, *m_hand_path, *h_hand_path;
-//GPath *m_lume_path;
 GBitmap *seconds_paddle, *watch_dial, *dial_text;
 
 /* variables */
@@ -70,18 +69,13 @@ GPathInfo s_hand_info = {
 };
 
 
-/* 7=pixel side rectangle for the minutes hand, stroked at 1px so 5px visible */
+/* 7-pixel wide rectangle for the minutes hand, stroked at 1px so 5px visible */
 GPathInfo m_hand_info = {
 	.num_points = 4,
 	.points = (GPoint[]) { {69,21} , {75,21} , {75,94} , {69,94} }
 };
 
-/* 3-pixel wide rectangle for the lume within the minutes hand, stroked at 1px so 1px visible */
-/*GPathInfo m_lume_info = {
-	.num_points = 4,
-	.points = (GPoint[]) { {71,28} , {73,28} , {73,68} , {71,68} }
-};*/
-
+/* 7-pixel wide rectangle for the hour hand, stroked at 1px so 5px visible */
 GPathInfo h_hand_info = {
 	.num_points = 4,
 	.points = (GPoint[]) { {69,40} , {75,40} , {75,94} , {69,94} }
@@ -94,7 +88,6 @@ GPathInfo h_hand_info = {
 
 void hours_update_proc(Layer *l, GContext *ctx) {
 	if(drawing_hands) {
-		
 		// set paths to new angle
 		GPoint rot_point = (GPoint) {ROT_CENTRE_X, ROT_CENTRE_Y};
 		gpath_centre_rotate(h_hand_path, hours_angle, rot_point);
@@ -113,17 +106,12 @@ void minutes_update_proc(Layer *l, GContext *ctx) {
 		// set paths to new angle
 		GPoint rot_point = (GPoint) {ROT_CENTRE_X, ROT_CENTRE_Y};
 		gpath_centre_rotate(m_hand_path, minutes_angle, rot_point);
-		//gpath_centre_rotate(m_lume_path, minutes_angle, rot_point);
+		
 		// draw and fill the minute hand
 		graphics_context_set_stroke_color(ctx, HANDS_STROKE_COLOUR);
 		graphics_context_set_fill_color(ctx, HANDS_FILL_COLOUR);
 		gpath_draw_filled(ctx, m_hand_path);
 		gpath_draw_outline(ctx, m_hand_path);
-		// draw and fill the minute lume
-		//graphics_context_set_stroke_color(ctx, HANDS_FILL_COLOUR);
-		//graphics_context_set_fill_color(ctx, HANDS_LUME_COLOUR);
-		//gpath_draw_filled(ctx, m_lume_path);
-		//gpath_draw_outline(ctx, m_lume_path);
 	}
 }
 
@@ -140,17 +128,11 @@ void seconds_update_proc(Layer *l, GContext *ctx) {
 }
 
 void circle_update_proc(Layer *l, GContext *ctx) {
-	
-	/*graphics_context_set_stroke_color(ctx, GColorRed);
-	graphics_draw_line(ctx, GPoint(70,84), GPoint(74,84));
-	graphics_draw_line(ctx, GPoint(72,82), GPoint(72, 86));
-	graphics_draw_circle(ctx, GPoint(72,84), 23);*/
-	
 	graphics_context_set_fill_color(ctx, CIRCLE_FILL_COLOUR);
 	graphics_context_set_stroke_color(ctx, CIRCLE_STROKE_COLOUR);
 	graphics_fill_circle(ctx, GPoint(ROT_CENTRE_X, ROT_CENTRE_Y), CENTRE_DIA);
 	graphics_draw_circle(ctx, GPoint(ROT_CENTRE_X, ROT_CENTRE_Y), CENTRE_DIA);
-	
+	graphics_draw_circle(ctx, GPoint(ROT_CENTRE_X, ROT_CENTRE_Y), 1);
 }
 
 
@@ -205,7 +187,7 @@ void tick_handler(struct tm * tick_time, TimeUnits units_changed) {
 	// deal with leap seconds!
 	if(seconds > 59) seconds = 59;
 	
-	// update time if either it's not displaying OR this is a new day
+	// update date if either it's not displaying OR this is a new day
 	if(strcmp(temp_buff, "00") == 0 || (hours == 0 && minutes == 0 && seconds == 0)) {
 		strftime(temp_buff, sizeof("00"), "%e", tick_time);
 		text_layer_set_text(temp_text_layer, temp_buff);
@@ -216,7 +198,6 @@ void tick_handler(struct tm * tick_time, TimeUnits units_changed) {
 		hours_angle = get_hours_angle();
 		layer_mark_dirty(hours_layer);	
 	}
-	
 	
 	// check whether we need to re-draw minutes hand
 	if( minutes_angle == -1 || minutes_angle != get_minutes_angle() ) {
@@ -262,7 +243,6 @@ static void main_window_load(Window *w) {
 	s_hand_path = gpath_create(&s_hand_info);
 	m_hand_path = gpath_create(&m_hand_info);
 	h_hand_path = gpath_create(&h_hand_info);
-	//m_lume_path = gpath_create(&m_lume_info);
 	
 	// init our bitmaps
 	seconds_paddle = gbitmap_create_with_resource(RESOURCE_ID_SECOND_HAND_PADDLE);
@@ -282,13 +262,16 @@ static void main_window_load(Window *w) {
 	dial_text_layer = bitmap_layer_create(GRect( (SCREEN_WIDTH - DIAL_X)/2, (SCREEN_HEIGHT - DIAL_Y)/2 + 2, DIAL_X, DIAL_Y ));
 	bitmap_layer_set_bitmap(dial_text_layer, dial_text);
 	
+	// load the custom text
+	eurostile_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_EUROSTILE_BOLD_13));
+	
 	// create the text layer
-	temp_text_layer = text_layer_create(GRect(114,75,15,15));
+	temp_text_layer = text_layer_create(GRect(103,76,30,30));
 	text_layer_set_background_color(temp_text_layer, GColorClear);
 	text_layer_set_text_color(temp_text_layer, GColorBlack);
 	text_layer_set_text(temp_text_layer, "00");
 	text_layer_set_text_alignment(temp_text_layer, GTextAlignmentRight);
-	text_layer_set_font(temp_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD));
+	text_layer_set_font(temp_text_layer, eurostile_font);
 	
 	// add layers to window
 	layer_add_child(w_layer, (Layer *)dial_layer);
@@ -319,7 +302,6 @@ static void main_window_unload(Window *w) {
 	gpath_destroy(s_hand_path);
 	gpath_destroy(m_hand_path);
 	gpath_destroy(h_hand_path);
-	//gpath_destroy(m_lume_path);
 	gbitmap_destroy(seconds_paddle);
 	gbitmap_destroy(watch_dial);
 	gbitmap_destroy(dial_text);
@@ -334,7 +316,6 @@ static void main_window_unload(Window *w) {
 /*****************************************************/
 
 static void init() {
-	
 	// create main Window element and assign to pointer
 	main_window = window_create();
 	
