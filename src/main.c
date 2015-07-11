@@ -22,7 +22,7 @@
 #define SECONDS_LINE_COLOUR GColorWhite
 #define SECS_LONG 56
 #define SECS_SHORT 23
-#define SECS_WIDTH 1			// stroked 3-wide so that 1 is visible, x-1, x+1; some problems with code ...
+#define SECS_WIDTH 2			// stroked 3-wide so that 1 is visible, x-1, x+1; some problems with code ...
 	
 /* hand colours */
 #define HANDS_STROKE_COLOUR GColorBlack
@@ -32,7 +32,7 @@
 #define HR_LONG 44
 #define MIN_LONG 63
 #define HANDS_SHORT	10
-#define HANDS_WIDTH 3				// stroked 7-wide so that 5 is visible; x-3, x+3
+#define HANDS_WIDTH 4				// stroked 7-wide so that 5 is visible; x-3, x+3
 	
 /* seconds paddle */
 #define SECS_IC_X 4
