@@ -9,6 +9,22 @@
     "resources": {
         "media": [
             {
+                "file": "images/paddle_28.png",
+                "menuIcon": true,
+                "name": "PADDLE_28",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/face2.png",
+                "name": "WATCH_DIAL",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/second_hand_2.png",
+                "name": "SECOND_HAND_PADDLE",
+                "type": "bitmap"
+            },
+            {
                 "characterRegex": "[0-9 ]",
                 "file": "fonts/Eurostile-Bold.ttf",
                 "name": "EUROSTILE_BOLD_13",
@@ -16,25 +32,9 @@
                 "type": "font"
             },
             {
-                "file": "images/paddle_28.png",
-                "menuIcon": true,
-                "name": "PADDLE_28",
-                "type": "png"
-            },
-            {
                 "file": "images/dial_text.png",
                 "name": "DIAL_TEXT",
-                "type": "png"
-            },
-            {
-                "file": "images/face2.png",
-                "name": "WATCH_DIAL",
-                "type": "png"
-            },
-            {
-                "file": "images/second_hand_2.png",
-                "name": "SECOND_HAND_PADDLE",
-                "type": "png"
+                "type": "bitmap"
             }
         ]
     },
